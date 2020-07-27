@@ -288,7 +288,7 @@ def main_wo_bpe():
     MIN_FREQ = opt.min_word_count
 
     if not all([opt.data_src, opt.data_trg]):
-        assert {opt.lang_src, opt.lang_trg} == {'de', 'en'}
+        assert {opt.lang_src, opt.lang_trg} == {'en', 'en'}
     else:
         # Pack custom txt file into example datasets
         raise NotImplementedError
@@ -296,10 +296,52 @@ def main_wo_bpe():
     def filter_examples_with_length(x):
         return len(vars(x)['src']) <= MAX_LEN and len(vars(x)['trg']) <= MAX_LEN
 
-    train, val, test = torchtext.datasets.Multi30k.splits(
-            exts = ('.' + opt.lang_src, '.' + opt.lang_trg),
-            fields = (SRC, TRG),
-            filter_pred=filter_examples_with_length)
+    # train, val, test = torchtext.datasets.Multi30k.splits(
+    #         exts = ('.' + opt.lang_src, '.' + opt.lang_trg),
+    #         fields = (SRC, TRG),
+    #         filter_pred=filter_examples_with_length)
+
+    TRAIN_SRC_FN = 'ASLG-PC12/ENG-ASL_Train.en'
+    TRAIN_TRG_FN = 'ASLG-PC12/ENG-ASL_Train.asl'
+    VAL_SRC_FN = 'ASLG-PC12/ENG-ASL_Dev.en' #TODO check that this is the validation set
+    VAL_TRG_FN = 'ASLG-PC12/ENG-ASL_Dev.asl' #TODO check that this is the validation set
+    TEST_SRC_FN = 'ASLG-PC12/ENG-ASL_Test.en'
+    TEST_TRG_FN = 'ASLG-PC12/ENG-ASL_Test.asl'
+
+    with open(TRAIN_SRC_FN, 'r') as f:
+        train_src = list(f)
+
+    with open(TRAIN_TRG_FN, 'r') as f:
+        train_trg = list(f)
+
+    with open(VAL_SRC_FN, 'r') as f:
+        val_src = list(f)
+
+    with open(VAL_TRG_FN, 'r') as f:
+        val_trg = list(f)
+
+    with open(TEST_SRC_FN, 'r') as f:
+        test_src = list(f)
+
+    with open(TEST_TRG_FN, 'r') as f:
+        test_trg = list(f)
+
+    fields = [('src', SRC), ('trg', TRG)]
+
+    train = torchtext.data.Dataset(
+                    examples=[torchtext.data.Example.fromlist(x, fields) for x in zip(train_src, train_trg)]
+                    , fields=fields
+                    , filter_pred=filter_examples_with_length)
+
+    val = torchtext.data.Dataset(
+                    examples=[torchtext.data.Example.fromlist(x, fields) for x in zip(val_src, val_trg)]
+                    , fields=fields
+                    , filter_pred=filter_examples_with_length)
+    
+    test = torchtext.data.Dataset(
+                    examples=[torchtext.data.Example.fromlist(x, fields) for x in zip(test_src, test_trg)]
+                    , fields=fields
+                    , filter_pred=filter_examples_with_length)
 
     SRC.build_vocab(train.src, min_freq=MIN_FREQ)
     print('[Info] Get source language vocabulary size:', len(SRC.vocab))
