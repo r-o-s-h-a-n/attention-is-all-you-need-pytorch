@@ -6,7 +6,7 @@ import dill as pickle
 from tqdm import tqdm
 
 import transformer.Constants as Constants
-from torchtext.data import Dataset
+from torchtext.data import Dataset, Example
 from transformer.Models import Transformer
 from transformer.Translator import Translator
 
@@ -48,6 +48,7 @@ def main():
                         help='Path to model weight file')
     parser.add_argument('-data_pkl', required=True,
                         help='Pickle file with both instances and vocabulary.')
+    parser.add_argument('-input', default='translate_src.txt')
     parser.add_argument('-output', default='pred.txt',
                         help="""Path to output the predictions (each line will
                         be the decoded sequence""")
@@ -77,8 +78,14 @@ def main():
     opt.trg_bos_idx = TRG.vocab.stoi[Constants.BOS_WORD]
     opt.trg_eos_idx = TRG.vocab.stoi[Constants.EOS_WORD]
 
-    test_loader = Dataset(examples=data['test'], fields={'src': SRC, 'trg': TRG})
+    with open(opt.input, 'r') as f:
+        translate_src = list(f) 
     
+    fields = [('src', SRC), ('trg', TRG)]
+    
+    data_loader = Dataset(examples=[Example.fromlist(x, fields) for x in zip(translate_src, translate_src)]
+                            , fields={'src': SRC, 'trg': TRG})
+
     device = torch.device('cuda' if opt.cuda else 'cpu')
     translator = Translator(
         model=load_model(opt, device),
@@ -91,19 +98,23 @@ def main():
 
     unk_idx = SRC.vocab.stoi[SRC.unk_token]
     with open(opt.output, 'w') as f:
-        for example in tqdm(test_loader, mininterval=2, desc='  - (Test)', leave=False):
-            #print(' '.join(example.src))
+        for example in tqdm(data_loader, mininterval=2, desc='  - (Test)', leave=False):
             src_seq = [SRC.vocab.stoi.get(word, unk_idx) for word in example.src]
             pred_seq = translator.translate_sentence(torch.LongTensor([src_seq]).to(device))
             pred_line = ' '.join(TRG.vocab.itos[idx] for idx in pred_seq)
             pred_line = pred_line.replace(Constants.BOS_WORD, '').replace(Constants.EOS_WORD, '')
-            #print(pred_line)
+
+            # print('\n')
+            # print('SRC', ' '.join(example.src))
+            # print('TRG', ' '.join(example.trg))
+            # print('PRED', pred_line)
+
             f.write(pred_line.strip() + '\n')
 
     print('[Info] Finished.')
 
 if __name__ == "__main__":
     '''
-    Usage: python translate.py -model trained.chkpt -data multi30k.pt -no_cuda
+    Usage: python translate.py -model trained.chkpt -data multi30k.pt -input translate.txt -no_cuda
     '''
     main()
