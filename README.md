@@ -36,7 +36,7 @@ python translate.py -data_pkl eng2gloss_data.pkl -model trained.chkpt -input tra
 ```
 ### 4) Get BLEU scores
 ```bash
-python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data predictions.txt
+python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data prediction.txt
 ```
 
 
@@ -64,5 +64,5 @@ python translate.py -data_pkl eng2gloss_data.pkl -model trained.chkpt -input tra
 ```
 ### 4) Get BLEU scores
 ```bash
-python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data predictions.txt
+python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data prediction.txt
 ```
