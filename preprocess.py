@@ -270,10 +270,16 @@ def main_wo_bpe():
     src_lang_model = spacy.load(opt.lang_src)
     trg_lang_model = spacy.load(opt.lang_trg)
 
+    STOP_WORDS = ['X-', 'DESC-']
+
     def tokenize_src(text):
+        for w in STOP_WORDS:
+            text = text.replace(w, '')
         return [tok.text for tok in src_lang_model.tokenizer(text)]
 
     def tokenize_trg(text):
+        for w in STOP_WORDS:
+            text = text.replace(w, '')
         return [tok.text for tok in trg_lang_model.tokenizer(text)]
 
     SRC = torchtext.data.Field(
