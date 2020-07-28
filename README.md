@@ -62,7 +62,7 @@ python train.py -data_pkl eng2gloss_data.pkl -log eng2gloss -embs_share_weight -
 ```bash
 python translate.py -data_pkl eng2gloss_data.pkl -model trained.chkpt -input translate_src.txt -output prediction.txt
 ```
-### 4) Get BLEU scores
+### 5) Get BLEU scores
 ```bash
 python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data predictions.txt
 ```
