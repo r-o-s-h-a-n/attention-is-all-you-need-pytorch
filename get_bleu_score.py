@@ -39,7 +39,7 @@ def main():
 
 if __name__ == "__main__":
     '''
-    Usage: python get_bleu_score.py -data_pkl eng2gl_shr.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data predictions.txt
+    Usage: python get_bleu_score.py -data_pkl eng2gloss_data.pkl -trg_data ASLG-PC12/ENG-ASL_Test.en -pred_data predictions.txt
     '''
     main()
 
